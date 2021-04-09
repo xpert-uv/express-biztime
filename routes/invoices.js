@@ -15,7 +15,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
     try {
         const { id } = req.params;
-        const result = await db.query(`Select * from invoices where code=$1`, [id]);
+        const result = await db.query(`Select * from invoices where id=$1`, [id]);
         return res.json({ invoice: result.rows });
     } catch (e) {
         next(e);
@@ -34,7 +34,7 @@ router.post("/", async (req, res, next) => {
 })
 
 
-router.put("/:id", async (req, res, next) => {
+router.patch("/:id", async (req, res, next) => {
     try {
         const { name, description } = req.body;
         const { id } = req.params;
@@ -45,7 +45,19 @@ router.put("/:id", async (req, res, next) => {
         next(e);
     }
 })
+router.put("/:id", async (req, res, next) => {
+    try {
+        const { paid } = req.body;
+        const { id } = req.params;
+        const date = new Date();
 
+        const result = await db.query('UPDATE invoices Set paid=$1, paid_date=$3 where id=$2 returning *', [paid, id, date]);
+        return res.send({ invoice: result.rows });
+
+    } catch (e) {
+        next(e);
+    }
+})
 router.delete("/:id", async (req, res, next) => {
     try {
         const { id } = req.params;
